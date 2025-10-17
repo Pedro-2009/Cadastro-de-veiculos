@@ -1,7 +1,13 @@
 function openDeleteModal(deleteUrl) {
-    const confirmBtn = document.getElementById('confirmDeleteBtn');
-    confirmBtn.setAttribute('href', deleteUrl);
+    const modalEl = document.getElementById('deleteModal');
+    const confirmBtn = modalEl.querySelector('#confirmDeleteBtn');
 
-    // Exibe o modal
-    $('#deleteModal').modal('show');
+    // Atualiza o onclick do botão confirmar
+    confirmBtn.onclick = function() {
+        window.location.href = deleteUrl;
+    };
+
+    // Inicializa e abre o modal usando Bootstrap 5
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
 }

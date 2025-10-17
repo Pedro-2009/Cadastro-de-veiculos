@@ -32,7 +32,7 @@ define('FOOTER_TEMPLATE', ABSPATH . 'inc/footer.php');
 
 /** URL BASE (para uso no navegador) **/
 if (!defined('BASEURL')) {
-    define('BASEURL', '/Cadastro-de-veiculos/crud_login/'); // Ajuste se o projeto estiver em outra pasta
+    define('BASEURL', '/Cadastro-de-veiculos/Cadastro-de-veiculos/crud_login/'); // Ajuste se o projeto estiver em outra pasta
 }
 
 define('MODULES_URL', BASEURL . 'modules/');
@@ -42,3 +42,4 @@ define('CSS_URL', PUBLIC_URL . 'css/');
 define('JS_URL', PUBLIC_URL . 'js/');
 define('IMG_URL', PUBLIC_URL . 'images/');
 define('UPLOADS_URL', PUBLIC_URL . 'uploads/');
+define('LOGIN_URL', BASEURL . 'login.php');

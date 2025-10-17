@@ -38,7 +38,7 @@ edit();
                 <option value="cliente" <?php echo ($user['access_level'] == 'cliente') ? 'selected' : ''; ?>>Cliente</option>
             </select>
         </div>
-    </div>
+    </div><br>
 
     <div id="actions" class="row">
         <div class="col-md-12">

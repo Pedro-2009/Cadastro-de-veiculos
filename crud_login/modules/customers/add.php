@@ -86,7 +86,7 @@
             <label for="campo3">Celular</label>
             <input type="text" class="form-control" name="customer['mobile']" data-mask="mobile">
         </div>
-    </div>
+    </div><br>
 
     <div id="actions" class="row">
         <div class="col-md-10">

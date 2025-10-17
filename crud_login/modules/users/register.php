@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['user'])) {
         <div class="password-strength" id="confirmStrength"></div>
         <small id="confirmStrengthText" class="text-muted"></small>
         <div id="passwordStrength" class="help-block"></div>
-      </div>
+      </div><br>
       <div class="form-group text-right">
         <a href="<?php echo BASEURL; ?>login.php" class="btn btn-default">Cancelar</a>
         <button type="submit" class="btn btn-primary">Registrar</button>
