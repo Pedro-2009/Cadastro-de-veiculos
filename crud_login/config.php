@@ -32,7 +32,7 @@ define('FOOTER_TEMPLATE', ABSPATH . 'inc/footer.php');
 
 /** URL BASE (para uso no navegador) **/
 if (!defined('BASEURL')) {
-    define('BASEURL', '/emi_sesc/crud_login/'); // Ajuste se o projeto estiver em outra pasta
+    define('BASEURL', '/Cadastro-de-veiculos/crud_login/'); // Ajuste se o projeto estiver em outra pasta
 }
 
 define('MODULES_URL', BASEURL . 'modules/');
