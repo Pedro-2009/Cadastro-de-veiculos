@@ -1,37 +1,24 @@
 <?php
 require_once('functions.php');
-require_once __DIR__ . '/../customers/functions.php';
+add_veiculo();
 
-// Busca todos os clientes para o select
-$clientes = find_all_customers();
-
-// Processa o formulário
-if (!empty($_POST['veiculo'])) {
-    $veiculo = $_POST['veiculo'];
-
-    // Adiciona o veículo
-    save('veiculos', $veiculo);
-
-    $_SESSION['message'] = 'Veículo cadastrado com sucesso!';
-    $_SESSION['type'] = 'success';
-    header('Location: index.php');
-    exit;
-}
+$clientes = find_all_customers(); // Para selecionar cliente no cadastro
 ?>
 
 <?php include(HEADER_TEMPLATE); ?>
 
 <div class="container py-4">
-  <h2 class="mb-4">Cadastrar Novo Veículo</h2>
+  <h2>Novo Veículo</h2>
   <hr>
 
-  <form action="add.php" method="post">
+  <form action="add.php" method="POST" enctype="multipart/form-data">
+
     <div class="mb-3">
-      <label for="cliente_id" class="form-label">Cliente</label>
-      <select name="veiculo[customer_id]" id="cliente_id" class="form-select" required>
-        <option value="">Selecione um cliente</option>
-        <?php foreach ($clientes as $cliente): ?>
-          <option value="<?= $cliente['id'] ?>"><?= htmlspecialchars($cliente['name']) ?></option>
+      <label for="cliente" class="form-label">Cliente</label>
+      <select name="veiculo[customer_id]" id="cliente" class="form-select" required>
+        <option value="">Selecione...</option>
+        <?php foreach ($clientes as $c): ?>
+          <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?></option>
         <?php endforeach; ?>
       </select>
     </div>
@@ -61,8 +48,13 @@ if (!empty($_POST['veiculo'])) {
       <input type="text" name="veiculo[cor]" id="cor" class="form-control">
     </div>
 
+    <div class="mb-3">
+      <label for="imagem" class="form-label">Imagem do Veículo</label>
+      <input type="file" name="imagem" id="imagem" class="form-control" accept="image/*">
+    </div>
+
     <button type="submit" class="btn btn-primary">Cadastrar Veículo</button>
-    <a href="index.php" class="btn btn-secondary ms-2">Cancelar</a>
+    <a href="index.php" class="btn btn-secondary">Cancelar</a>
   </form>
 </div>
 

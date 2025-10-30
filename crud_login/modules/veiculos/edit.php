@@ -1,47 +1,25 @@
 <?php
 require_once('functions.php');
-require_once __DIR__ . '/../customers/functions.php';
+edit_veiculo();
 
-// Verifica se o ID foi passado
-$id = $_GET['id'] ?? null;
-if (!$id) {
-    header('Location: index.php');
-    exit;
-}
-
-// Busca veículo específico
-$veiculo = find('veiculos', $id);
-
-// Busca todos os clientes para o select
 $clientes = find_all_customers();
-
-// Processa o formulário de edição
-if (!empty($_POST['veiculo'])) {
-    $veiculo_atualizado = $_POST['veiculo'];
-
-    update('veiculos', $id, $veiculo_atualizado);
-
-    $_SESSION['message'] = 'Veículo atualizado com sucesso!';
-    $_SESSION['type'] = 'success';
-    header('Location: index.php');
-    exit;
-}
 ?>
 
 <?php include(HEADER_TEMPLATE); ?>
 
 <div class="container py-4">
-  <h2 class="mb-4">Editar Veículo</h2>
+  <h2>Editar Veículo</h2>
   <hr>
 
-  <form action="edit.php?id=<?= $id ?>" method="post">
+  <form action="edit.php?id=<?= $veiculo['id'] ?>" method="POST" enctype="multipart/form-data">
+
     <div class="mb-3">
-      <label for="cliente_id" class="form-label">Cliente</label>
-      <select name="veiculo[customer_id]" id="cliente_id" class="form-select" required>
-        <option value="">Selecione um cliente</option>
-        <?php foreach ($clientes as $cliente): ?>
-          <option value="<?= $cliente['id'] ?>" <?= ($veiculo['customer_id'] == $cliente['id']) ? 'selected' : '' ?>>
-            <?= htmlspecialchars($cliente['name']) ?>
+      <label for="cliente" class="form-label">Cliente</label>
+      <select name="veiculo[customer_id]" id="cliente" class="form-select" required>
+        <option value="">Selecione...</option>
+        <?php foreach ($clientes as $c): ?>
+          <option value="<?= $c['id'] ?>" <?= ($c['id'] == $veiculo['customer_id']) ? 'selected' : '' ?>>
+            <?= htmlspecialchars($c['name']) ?>
           </option>
         <?php endforeach; ?>
       </select>
@@ -72,8 +50,19 @@ if (!empty($_POST['veiculo'])) {
       <input type="text" name="veiculo[cor]" id="cor" class="form-control" value="<?= htmlspecialchars($veiculo['cor']) ?>">
     </div>
 
+    <div class="mb-3">
+      <label for="imagem" class="form-label">Imagem do Veículo</label>
+      <?php if (!empty($veiculo['imagem']) && file_exists('../../' . $veiculo['imagem'])): ?>
+        <div class="mb-2">
+          <img src="../../<?= $veiculo['imagem'] ?>" alt="Veículo" class="img-fluid rounded" style="max-height: 200px;">
+        </div>
+      <?php endif; ?>
+      <input type="file" name="imagem" id="imagem" class="form-control" accept="image/*">
+      <small class="text-muted">Enviar um novo arquivo substituirá a imagem atual.</small>
+    </div>
+
     <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-    <a href="index.php" class="btn btn-secondary ms-2">Cancelar</a>
+    <a href="index.php" class="btn btn-secondary">Cancelar</a>
   </form>
 </div>
 

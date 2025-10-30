@@ -1,35 +1,23 @@
 <?php
-/**
- * Funções do módulo de Veículos
- * Integrado via init.php
- */
+require_once(__DIR__ . '/../../init.php'); // acesso ao DB e funções globais
 
-require_once('../../init.php'); // acesso às funções globais e DBAPI
-
-// Variáveis globais usadas nas views
 $veiculos = null;
 $veiculo  = null;
 
 /**
  * Lista todos os veículos
  */
-function veiculos_index() {
+function index_veiculos() {
     global $veiculos;
-    $veiculos = veiculos_find_all();
+    $veiculos = find_all_veiculos();
 }
 
 /**
- * Busca todos os veículos com o nome do cliente vinculado
+ * Busca todos os veículos com nome do cliente
  */
-function veiculos_find_all() {
+function find_all_veiculos() {
     $conn = open_database();
     $rows = [];
-
-    if (!$conn) {
-        $_SESSION['message'] = 'Erro ao conectar ao banco de dados!';
-        $_SESSION['type'] = 'danger';
-        return $rows;
-    }
 
     $sql = "SELECT v.*, c.name AS cliente
             FROM veiculos v
@@ -38,10 +26,6 @@ function veiculos_find_all() {
 
     if ($result = $conn->query($sql)) {
         $rows = $result->fetch_all(MYSQLI_ASSOC);
-        $result->free();
-    } else {
-        $_SESSION['message'] = 'Erro ao buscar veículos!';
-        $_SESSION['type'] = 'danger';
     }
 
     close_database($conn);
@@ -49,41 +33,31 @@ function veiculos_find_all() {
 }
 
 /**
- * Busca todos os clientes para popular o select em add/edit
+ * Busca um veículo pelo ID
  */
-function veiculos_find_all_customers() {
+function find_veiculo($id) {
     $conn = open_database();
-    $rows = [];
-
-    if (!$conn) return $rows;
-
-    $sql = "SELECT id, name FROM customers ORDER BY name ASC";
-
-    if ($result = $conn->query($sql)) {
-        $rows = $result->fetch_all(MYSQLI_ASSOC);
-        $result->free();
-    }
-
+    $stmt = $conn->prepare("SELECT * FROM veiculos WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $veiculo = $result->fetch_assoc();
     close_database($conn);
-    return $rows;
+    return $veiculo;
 }
 
 /**
- * Cadastra um novo veículo
+ * Salva novo veículo
  */
-function veiculos_add() {
+function add_veiculo() {
+    global $veiculo;
     if (!empty($_POST['veiculo'])) {
-        $data = $_POST['veiculo'];
+        $veiculo = $_POST['veiculo'];
 
-        $veiculo = [
-            'customer_id'   => $data['customer_id'] ?? null,
-            'placa'         => $data['placa'] ?? '',
-            'modelo'        => $data['modelo'] ?? '',
-            'marca'         => $data['marca'] ?? '',
-            'ano'           => $data['ano'] ?? '',
-            'cor'           => $data['cor'] ?? '',
-            'data_cadastro' => date('Y-m-d H:i:s')
-        ];
+        // Upload de imagem
+        if (!empty($_FILES['imagem']['name'])) {
+            $veiculo['imagem'] = upload_image($_FILES['imagem']);
+        }
 
         save('veiculos', $veiculo);
 
@@ -95,24 +69,30 @@ function veiculos_add() {
 }
 
 /**
- * Edita um veículo existente
+ * Edita veículo existente
  */
-function veiculos_edit() {
+function edit_veiculo() {
     global $veiculo;
     $id = $_GET['id'] ?? null;
-    if (!$id) return;
+
+    if (!$id) {
+        $_SESSION['message'] = 'ID do veículo não informado.';
+        $_SESSION['type'] = 'warning';
+        header('Location: index.php');
+        exit;
+    }
 
     if (!empty($_POST['veiculo'])) {
-        $data = $_POST['veiculo'];
+        $veiculoData = $_POST['veiculo'];
 
-        $veiculoData = [
-            'customer_id' => $data['customer_id'] ?? null,
-            'placa'       => $data['placa'] ?? '',
-            'modelo'      => $data['modelo'] ?? '',
-            'marca'       => $data['marca'] ?? '',
-            'ano'         => $data['ano'] ?? '',
-            'cor'         => $data['cor'] ?? ''
-        ];
+        // Substitui a imagem se houver novo upload
+        if (!empty($_FILES['imagem']['name'])) {
+            $veiculoAtual = find_veiculo($id);
+            if (!empty($veiculoAtual['imagem']) && file_exists('../../' . $veiculoAtual['imagem'])) {
+                unlink('../../' . $veiculoAtual['imagem']); // remove imagem antiga
+            }
+            $veiculoData['imagem'] = upload_image($_FILES['imagem']);
+        }
 
         update('veiculos', $id, $veiculoData);
 
@@ -121,15 +101,25 @@ function veiculos_edit() {
         header('Location: index.php');
         exit;
     } else {
-        $veiculo = find('veiculos', $id);
+        $veiculo = find_veiculo($id);
     }
 }
 
 /**
- * Exclui um veículo
+ * Exclui veículo
  */
-function veiculos_delete($id = null) {
-    if (!$id) return;
+function delete_veiculo($id = null) {
+    if (!$id) {
+        $_SESSION['message'] = 'ID do veículo não informado.';
+        $_SESSION['type'] = 'warning';
+        header('Location: index.php');
+        exit;
+    }
+
+    $veiculo = find_veiculo($id);
+    if (!empty($veiculo['imagem']) && file_exists('../../' . $veiculo['imagem'])) {
+        unlink('../../' . $veiculo['imagem']); // remove imagem ao deletar veículo
+    }
 
     remove('veiculos', $id);
 
@@ -137,4 +127,37 @@ function veiculos_delete($id = null) {
     $_SESSION['type'] = 'success';
     header('Location: index.php');
     exit;
+}
+
+/**
+ * Função de upload de imagem
+ */
+function upload_image($file) {
+    $uploadDir = 'public/uploads/veiculos/';
+    if (!is_dir('../../' . $uploadDir)) {
+        mkdir('../../' . $uploadDir, 0777, true);
+    }
+
+    $filename = 'veiculo_' . time() . '_' . basename($file['name']);
+    $targetFile = $uploadDir . $filename;
+
+    if (move_uploaded_file($file['tmp_name'], '../../' . $targetFile)) {
+        return $targetFile;
+    }
+
+    return null;
+}
+
+/**
+ * Lista todos os clientes para select
+ */
+function find_all_customers() {
+    $conn = open_database();
+    $rows = [];
+    $sql = "SELECT id, name FROM customers ORDER BY name ASC";
+    if ($result = $conn->query($sql)) {
+        $rows = $result->fetch_all(MYSQLI_ASSOC);
+    }
+    close_database($conn);
+    return $rows;
 }
