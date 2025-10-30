@@ -76,3 +76,15 @@ function delete($id = null) {
 
     header('location: index.php');
 }
+function find_all_customers() {
+    $conn = open_database();
+    $rows = [];
+
+    $sql = "SELECT * FROM customers ORDER BY id DESC";
+    if ($result = $conn->query($sql)) {
+        $rows = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    close_database($conn);
+    return $rows;
+}

@@ -47,6 +47,30 @@ requireAccess([]);
         </div>
       <?php endif; ?>
 
+      <!-- Novo Veículo -->
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="<?php echo MODULES_URL; ?>veiculos/add.php" class="btn btn-primary w-100 py-3 shadow-sm d-flex flex-column align-items-center">
+          <i class="fa fa-plus fa-3x mb-2"></i>
+          <span>Novo Veículo</span>
+        </a>
+      </div>
+
+      <!-- Veículos -->
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="<?php echo MODULES_URL; ?>veiculos" class="btn btn-outline-primary w-100 py-3 shadow-sm d-flex flex-column align-items-center">
+          <i class="fa fa-car fa-3x mb-2"></i>
+          <span>Veículos</span>
+        </a>
+      </div>
+
+      <!-- Manutenção -->
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="<?php echo MODULES_URL; ?>manutencoes" class="btn btn-outline-primary w-100 py-3 shadow-sm d-flex flex-column align-items-center">
+          <i class="fa fa-wrench fa-3x mb-2"></i>
+          <span>Manutenções</span>
+        </a>
+      </div>
+
     </div>
   <?php else : ?> 
     <div class="alert alert-danger mt-4" role="alert">
